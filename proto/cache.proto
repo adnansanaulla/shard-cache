@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package cache;
+
+option go_package = "github.com/shard-cache/proto";
+
+import "google/protobuf/duration.proto";
+
+// CacheService provides distributed cache operations
+service CacheService {
+  // Get retrieves a value from the cache
+  rpc Get(GetRequest) returns (GetResponse);
+  
+  // Set stores a value in the cache
+  rpc Set(SetRequest) returns (SetResponse);
+  
+  // Delete removes a key from the cache
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  
+  // Health check endpoint
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+// GetRequest represents a get operation
+message GetRequest {
+  string key = 1;
+}
+
+// GetResponse represents the response to a get operation
+message GetResponse {
+  bytes value = 1;
+  bool found = 2;
+}
+
+// SetRequest represents a set operation
+message SetRequest {
+  string key = 1;
+  bytes value = 2;
+  google.protobuf.Duration ttl = 3;
+}
+
+// SetResponse represents the response to a set operation
+message SetResponse {
+  bool success = 1;
+}
+
+// DeleteRequest represents a delete operation
+message DeleteRequest {
+  string key = 1;
+}
+
+// DeleteResponse represents the response to a delete operation
+message DeleteResponse {
+  bool deleted = 1;
+}
+
+// HealthRequest represents a health check request
+message HealthRequest {}
+
+// HealthResponse represents the response to a health check
+message HealthResponse {
+  bool healthy = 1;
+  string status = 2;
+} 

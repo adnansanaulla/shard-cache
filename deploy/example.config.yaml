@@ -1,0 +1,111 @@
+# Shard-Cache Configuration Example
+# This file shows all available configuration options
+
+server:
+  # gRPC server configuration
+  grpc:
+    port: 8080
+    max_concurrent_streams: 1000
+    max_connection_idle: 30s
+    max_connection_age: 60s
+    time: 10s
+    timeout: 5s
+
+  # HTTP server configuration (for metrics and health checks)
+  http:
+    port: 8081
+    read_timeout: 10s
+    write_timeout: 10s
+    idle_timeout: 60s
+
+  # Cache configuration
+  cache:
+    capacity: 10000
+    default_ttl: 3600s  # 1 hour
+    cleanup_interval: 300s  # 5 minutes
+
+  # Backpressure and load shedding
+  limits:
+    max_concurrent_requests: 1000
+    cpu_threshold: 0.9  # 90%
+    cpu_window: 10s
+    request_timeout: 30s
+
+  # Logging
+  logging:
+    level: info  # debug, info, warn, error
+    format: json  # json, console
+    output: stdout  # stdout, stderr, file
+
+# Client configuration
+client:
+  # Quorum settings
+  quorum:
+    read_quorum: 2
+    write_quorum: 2
+
+  # Hedging settings
+  hedging:
+    enabled: true
+    timeout: 100ms
+    ratio: 0.1
+
+  # Connection settings
+  connections:
+    timeout: 5s
+    keep_alive: 30s
+    max_idle: 100
+    max_lifetime: 300s
+
+  # Retry settings
+  retry:
+    max_attempts: 3
+    backoff_multiplier: 2.0
+    initial_delay: 10ms
+    max_delay: 1s
+
+# Ring configuration
+ring:
+  # Hashing algorithm
+  hash_algorithm: rendezvous  # rendezvous, consistent
+  virtual_nodes: 150  # for consistent hashing
+
+# Monitoring and observability
+monitoring:
+  # Metrics
+  metrics:
+    enabled: true
+    port: 9090
+    path: /metrics
+
+  # Health checks
+  health:
+    enabled: true
+    path: /health
+    interval: 30s
+    timeout: 5s
+
+  # Tracing
+  tracing:
+    enabled: false
+    jaeger_endpoint: "http://localhost:14268/api/traces"
+
+# Security
+security:
+  # TLS configuration
+  tls:
+    enabled: false
+    cert_file: ""
+    key_file: ""
+    ca_file: ""
+
+  # Authentication
+  auth:
+    enabled: false
+    token: ""
+
+# Development settings
+development:
+  debug: false
+  profile: false
+  profile_port: 6060 

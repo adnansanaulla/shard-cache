@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  shardcache-node1:
+    build: .
+    container_name: shardcache-node1
+    ports:
+      - "8080:8080"  # gRPC
+      - "8081:8081"  # HTTP
+    environment:
+      - GRPC_PORT=8080
+      - HTTP_PORT=8081
+    command: ["./shard-cache", "-grpc-port=8080", "-http-port=8081"]
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - shardcache-network
+
+  shardcache-node2:
+    build: .
+    container_name: shardcache-node2
+    ports:
+      - "8082:8080"  # gRPC
+      - "8083:8081"  # HTTP
+    environment:
+      - GRPC_PORT=8080
+      - HTTP_PORT=8081
+    command: ["./shard-cache", "-grpc-port=8080", "-http-port=8081"]
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - shardcache-network
+
+  shardcache-node3:
+    build: .
+    container_name: shardcache-node3
+    ports:
+      - "8084:8080"  # gRPC
+      - "8085:8081"  # HTTP
+    environment:
+      - GRPC_PORT=8080
+      - HTTP_PORT=8081
+    command: ["./shard-cache", "-grpc-port=8080", "-http-port=8081"]
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - shardcache-network
+
+  loadgen:
+    image: golang:1.22-alpine
+    container_name: shardcache-loadgen
+    working_dir: /app
+    volumes:
+      - ./cmd/loadgen:/app
+    command: >
+      sh -c "
+        apk add --no-cache git &&
+        go mod init loadgen &&
+        go get github.com/shard-cache/proto@latest &&
+        go run main.go
+      "
+    depends_on:
+      shardcache-node1:
+        condition: service_healthy
+      shardcache-node2:
+        condition: service_healthy
+      shardcache-node3:
+        condition: service_healthy
+    networks:
+      - shardcache-network
+    environment:
+      - NODE1_ADDR=shardcache-node1:8080
+      - NODE2_ADDR=shardcache-node2:8080
+      - NODE3_ADDR=shardcache-node3:8080
+
+networks:
+  shardcache-network:
+    driver: bridge 
